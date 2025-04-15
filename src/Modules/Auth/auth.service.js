@@ -93,10 +93,6 @@ export const forgetPassword = async (req, res, next) => {
   if (!user) {
     return next(new Error("User dosn't Exist", { cause: 404 }));
   }
-  const token = generateToken({
-    payload: { email },
-    signature: process.env.TOKEN_SECRET_EMAIL,
-  });
   ////
   const otp = otpGenerator.generate(6, {
     upperCaseAlphabets: false,
@@ -123,17 +119,11 @@ export const forgetPassword = async (req, res, next) => {
   return res.status(200).json({
     success: true,
     message: "Reset Password Email Sent Successfully",
-    token,
   });
 };
 
 export const checkOtp = async (req, res, next) => {
-  const { otp } = req.body;
-  const { token } = req.params;
-  const { email } = verify({
-    token: token,
-    signature: process.env.TOKEN_SECRET_EMAIL,
-  });
+  const { otp , email} = req.body;
   const user = await UserModel.findOne({ email });
   if (!user) {
     return next(new Error("User dosn't Exist", { cause: 404 }));
@@ -181,16 +171,22 @@ export const checkOtp = async (req, res, next) => {
   req.user = user;
   console.log(user);
 
+  const token = generateToken({
+    payload: { email },
+    signature: process.env.TOKEN_SECRET_EMAIL,
+    expiresIn: "10m"
+  });
+
   return res.status(200).json({
     success: true,
     message: "You Can Reset Password Now",
+    token
   });
 };
 
 export const resetPassword = async (req, res, next) => {
-  const { password } = req.body;
+  const { password ,token} = req.body;
   const hasedPassword = hash({ plainText: password });
-  const { token } = req.params;
   const { email } = verify({
     token: token,
     signature: process.env.TOKEN_SECRET_EMAIL,

@@ -24,9 +24,9 @@ router.patch(
   validation(authValidation.forgetPasswordSchema),
   asyncHandler(authService.forgetPassword)
 );
-router.post("/check_otp/:token", asyncHandler(authService.checkOtp));
+router.post("/check_otp", validation(authValidation.checkOtpSchema),asyncHandler(authService.checkOtp));
 router.patch(
-  "/reset_password/:token",
+  "/reset_password",
   validation(authValidation.resetPasswordSchema),
   asyncHandler(authService.resetPassword)
 );

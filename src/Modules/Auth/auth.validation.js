@@ -21,6 +21,11 @@ export const forgetPasswordSchema = joi.object({
   email: generalFields.email.required(),
 }).required();
 
+////
+export const checkOtpSchema = joi.object({
+  email: generalFields.email.required(),
+  otp: joi.string().max(6).required()
+}).required();
 
 ////
 export const resetPasswordSchema = joi.object({
